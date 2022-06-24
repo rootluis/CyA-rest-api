@@ -4,10 +4,10 @@ import kamban.com.bbva.CyArestapi.model.Disciplina;
 import kamban.com.bbva.CyArestapi.service.DisciplinaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
+//import org.slf4j.helpers.MessageFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,19 +23,41 @@ public class DisciplinaRestController {
 
     @GetMapping("/all")
     public List<Disciplina> getAll() {
-        return disciplinaService.getAll();
+//        return disciplinaService.getAll();
+        return disciplinaService.getDisciplinas();
     }
 
-    @GetMapping("/find/{id}")
-    public Disciplina findById(@PathVariable Long id) {
-        return disciplinaService.get(id);
+    @GetMapping("/findId/{id}")
+    public Disciplina findById(@PathVariable String id) {
+//        return disciplinaService.get(id);
+        return disciplinaService.getDisciplina(id);
+    }
+
+    @GetMapping("/findCod/{codDisciplina}")
+    public Disciplina getDisciplinaByCod(@PathVariable String codDisciplina){
+        return disciplinaService.getDisciplinaByCod(codDisciplina);
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Disciplina> save(@RequestBody Disciplina objDisciplina){
-        Disciplina disciplinaResult = disciplinaService.save(objDisciplina);
-        return new ResponseEntity<Disciplina>(disciplinaResult, HttpStatus.OK);
+    public Disciplina save(@RequestBody Disciplina objDisciplina) {
+        return disciplinaService.addDisciplina(objDisciplina);
     }
+
+    @PutMapping("/{idDisciplina}")
+    public Disciplina update(@PathVariable String idDisciplina, @RequestBody Disciplina objDisciplina){
+        return disciplinaService.updateDisciplina(idDisciplina, objDisciplina);
+    }
+
+    @DeleteMapping("/{idDisciplina}")
+    public void delete(@PathVariable String idDisciplina){
+        disciplinaService.deleteDisciplina(idDisciplina);
+    }
+
+//    @PostMapping("/save")
+//    public ResponseEntity<Disciplina> save(@RequestBody Disciplina objDisciplina){
+//        Disciplina disciplinaResult = disciplinaService.save(objDisciplina);
+//        return new ResponseEntity<Disciplina>(disciplinaResult, HttpStatus.OK);
+//    }
 
     // Este metodo funciona muy bien, se puede tomar
 //    @GetMapping("/delete/{id}")
@@ -50,12 +72,12 @@ public class DisciplinaRestController {
 //        return new ResponseEntity<Disciplina>(HttpStatus.OK);
 //    }
 
-    @DeleteMapping("/delete/{idDisciplina}")
-    void removeDisciplina(@PathVariable Long idDisciplina) {
-        Disciplina disciplinaResult = disciplinaService.get(idDisciplina);
-        LOGGER.info(MessageFormatter.format(">>>>>[DisciplinaController] {} : {}<<<<<", "Disciplina eliminada",
-                disciplinaResult).getMessage());
-        disciplinaService.delete(disciplinaResult.getId());
-    }
+//    @DeleteMapping("/delete/{idDisciplina}")
+//    void removeDisciplina(@PathVariable Long idDisciplina) {
+//        Disciplina disciplinaResult = disciplinaService.get(idDisciplina);
+//        LOGGER.info(MessageFormatter.format(">>>>>[DisciplinaController] {} : {}<<<<<", "Disciplina eliminada",
+//                disciplinaResult).getMessage());
+//        disciplinaService.delete(disciplinaResult.getId());
+//    }
 
 }

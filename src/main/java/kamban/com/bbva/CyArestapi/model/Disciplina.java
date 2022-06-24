@@ -10,10 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Disciplina {
 
     @Id
-    private Long id;
+    private String id;
 
-    private String name;
+    private String codDisciplina;
 
-    private String desc;
+    private String descripcion;
 
 }
