@@ -1,10 +1,11 @@
 package kamban.com.bbva.CyArestapi.model;
 
 import lombok.Data;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
+@Data 
 @Document(value = "disciplina")
 public class Disciplina {
 
