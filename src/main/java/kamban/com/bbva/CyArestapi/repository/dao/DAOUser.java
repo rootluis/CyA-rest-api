@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.Query;
 import java.io.Serializable;
 import java.util.List;
 
-public interface DAOUser extends MongoRepository<ENTEvidence, Serializable> {
+public interface DAOUser extends MongoRepository<ENTEvidence<MDLUser>, Serializable> {
     @Query("{'evidenceTypeId' : ?0,'specificFieldsDes.networkCode': ?1}")
     public ENTEvidence<MDLUser> findByNetworkCode(String id, String networkCode);
 
