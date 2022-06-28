@@ -1,83 +1,73 @@
 package kamban.com.bbva.CyArestapi.controller;
 
 import kamban.com.bbva.CyArestapi.model.Disciplina;
+import kamban.com.bbva.CyArestapi.model.MDLDisciplina;
 import kamban.com.bbva.CyArestapi.service.DisciplinaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.slf4j.helpers.MessageFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/disciplina/api/v1")
+@RequestMapping("/disciplina/api/v2")
 public class DisciplinaRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DisciplinaRestController.class);
 
     @Autowired
-    private DisciplinaService disciplinaService;
+    private DisciplinaService _disciplinaService;
 
-    @GetMapping("/all")
-    public List<Disciplina> getAll() {
-//        return disciplinaService.getAll();
-        return disciplinaService.getDisciplinas();
+    @PostMapping(value = "/")
+    public ResponseEntity<Object> createDisciplina(@RequestBody MDLDisciplina disciplina) {
+        try{
+            if(_disciplinaService.existDisciplina(disciplina.getName())){
+                return new ResponseEntity<>("Ya existe la disciplina",HttpStatus.ALREADY_REPORTED);
+            }else{
+                String idResult=_disciplinaService.createDisciplina(disciplina);
+
+                if(idResult!=null && idResult.length()>0){
+                    return new ResponseEntity<Object>(idResult,HttpStatus.CREATED);
+                }
+
+                return new ResponseEntity<Object>(idResult,HttpStatus.NOT_MODIFIED);
+            }
+
+        }catch (Exception e){
+            return new ResponseEntity<Object>(e,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping("/findId/{id}")
-    public Disciplina findById(@PathVariable String id) {
-//        return disciplinaService.get(id);
-        return disciplinaService.getDisciplina(id);
+    @GetMapping(value = "/")
+    public ResponseEntity<List<MDLDisciplina>> getAll(){
+        try {
+            List<MDLDisciplina> listDisciplinas=_disciplinaService.retrieveAllDisciplina();
+            if(listDisciplinas!=null && listDisciplinas.size()>0){
+                return new ResponseEntity<List<MDLDisciplina>>(listDisciplinas,HttpStatus.OK);
+            }else{
+                return new ResponseEntity<List<MDLDisciplina>>(HttpStatus.NO_CONTENT);
+            }
+        }catch (Exception e){
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping("/findCod/{codDisciplina}")
-    public Disciplina getDisciplinaByCod(@PathVariable String codDisciplina){
-        return disciplinaService.getDisciplinaByCod(codDisciplina);
+    @GetMapping(value = "/{name}")
+    public ResponseEntity<MDLDisciplina> getByName(@PathVariable String name){
+        try {
+            MDLDisciplina disciplina=_disciplinaService.retrieveByName(name);
+            if(disciplina!=null){
+                return new ResponseEntity<MDLDisciplina>(disciplina,HttpStatus.OK);
+            }else{
+                return new ResponseEntity<MDLDisciplina>(HttpStatus.NO_CONTENT);
+            }
+
+        }catch (Exception e){
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
-    @PostMapping("/save")
-    public Disciplina save(@RequestBody Disciplina objDisciplina) {
-        return disciplinaService.addDisciplina(objDisciplina);
-    }
-
-    @PutMapping("/{idDisciplina}")
-    public Disciplina update(@PathVariable String idDisciplina, @RequestBody Disciplina objDisciplina){
-        return disciplinaService.updateDisciplina(idDisciplina, objDisciplina);
-    }
-
-    @DeleteMapping("/{idDisciplina}")
-    public void delete(@PathVariable String idDisciplina){
-        disciplinaService.deleteDisciplina(idDisciplina);
-    }
-
-//    @PostMapping("/save")
-//    public ResponseEntity<Disciplina> save(@RequestBody Disciplina objDisciplina){
-//        Disciplina disciplinaResult = disciplinaService.save(objDisciplina);
-//        return new ResponseEntity<Disciplina>(disciplinaResult, HttpStatus.OK);
-//    }
-
-    // Este metodo funciona muy bien, se puede tomar
-//    @GetMapping("/delete/{id}")
-//    public ResponseEntity<Disciplina> delete(@PathVariable Long id){
-//        Disciplina disciplinaResult = disciplinaService.get(id);
-//        if (disciplinaResult != null){
-//            disciplinaService.delete(id);
-//        }else{
-//            return new ResponseEntity<Disciplina>(HttpStatus.NO_CONTENT);
-//        }
-//
-//        return new ResponseEntity<Disciplina>(HttpStatus.OK);
-//    }
-
-//    @DeleteMapping("/delete/{idDisciplina}")
-//    void removeDisciplina(@PathVariable Long idDisciplina) {
-//        Disciplina disciplinaResult = disciplinaService.get(idDisciplina);
-//        LOGGER.info(MessageFormatter.format(">>>>>[DisciplinaController] {} : {}<<<<<", "Disciplina eliminada",
-//                disciplinaResult).getMessage());
-//        disciplinaService.delete(disciplinaResult.getId());
-//    }
 
 }
