@@ -12,15 +12,17 @@ import java.util.List;
 public class User {
 
     @Id
-    private String usuarioRed;
+    private String id;
 
-    private String nombre;
+    private String netUser;
+
+    private String name;
 
     private String apPaterno;
 
     private String apMaterno;
 
-    private String usuarioCorto;
+    private String shortUser;
 
     private String email;
 
