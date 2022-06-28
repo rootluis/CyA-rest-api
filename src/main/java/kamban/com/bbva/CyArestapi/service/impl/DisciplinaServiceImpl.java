@@ -46,6 +46,7 @@ public class DisciplinaServiceImpl implements DisciplinaService {
 
     @Override
     public List<MDLDisciplina> retrieveAllDisciplina() {
+
         List<MDLDisciplina> dataReturn = new ArrayList<>();
         List<ENTEvidence<MDLDisciplina>> listEvidence = _daoEvidence.findByEvidenceTypeId(UTLConstants.CODE_DOCUMENT_DISCIPLINA.getValue());
 
