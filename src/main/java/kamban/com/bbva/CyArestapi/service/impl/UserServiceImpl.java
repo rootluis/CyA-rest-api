@@ -1,18 +1,16 @@
 package kamban.com.bbva.CyArestapi.service.impl;
 
-import kamban.com.bbva.CyArestapi.model.MDLDisciplina;
 import kamban.com.bbva.CyArestapi.model.MDLUser;
 import kamban.com.bbva.CyArestapi.repository.dao.DAOUser;
 import kamban.com.bbva.CyArestapi.repository.entity.ENTEvidence;
 import kamban.com.bbva.CyArestapi.service.UserService;
+import kamban.com.bbva.CyArestapi.utils.UTLConstants;
 import kamban.com.bbva.CyArestapi.utils.UTLGeneralService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static kamban.com.bbva.CyArestapi.utils.UTLConstants.CODE_DOCUMENT_USER;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -31,7 +29,7 @@ public class UserServiceImpl implements UserService {
         String dataReturn=new String();
 
         ENTEvidence<MDLUser> dataToSave=this._utlGeneralService.createModelEvidence(userData);
-        dataToSave.setEvidenceTypeId(CODE_DOCUMENT_USER);
+        dataToSave.setEvidenceTypeId(UTLConstants.CODE_DOCUMENT_USER.getValue());
 
         ENTEvidence<MDLUser> dataSaved=_daoUser.save(dataToSave);
 
@@ -59,7 +57,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<MDLUser> retrieveAllUsers() {
         List<MDLUser> dataReturn =new ArrayList<>();
-        List<ENTEvidence<MDLUser>> listUsers= _daoUser.findByEvidenceTypeId(CODE_DOCUMENT_USER);
+        List<ENTEvidence<MDLUser>> listUsers= _daoUser.findByEvidenceTypeId(UTLConstants.CODE_DOCUMENT_USER.getValue());
 
         if(listUsers!=null && listUsers.size()>0){
             for (ENTEvidence<MDLUser> entUser:listUsers) {
@@ -75,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public MDLUser retrieveUserByNetworkCode(String networkCode) {
-        ENTEvidence<MDLUser> evidence= _daoUser.findByNetworkCode(CODE_DOCUMENT_USER,networkCode);
+        ENTEvidence<MDLUser> evidence= _daoUser.findByNetworkCode(UTLConstants.CODE_DOCUMENT_USER.getValue(),networkCode);
 
         if(evidence!=null && evidence.getSpecificFieldsDes()!=null){
             evidence.getSpecificFieldsDes().setId(evidence.getId());
@@ -87,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existUser(String networkCode){
-        ENTEvidence<MDLUser> evidence= _daoUser.findByNetworkCode(CODE_DOCUMENT_USER,networkCode);
+        ENTEvidence<MDLUser> evidence= _daoUser.findByNetworkCode(UTLConstants.CODE_DOCUMENT_USER.getValue(),networkCode);
 
         if(evidence!=null && evidence.getSpecificFieldsDes()!=null){
             return true;
