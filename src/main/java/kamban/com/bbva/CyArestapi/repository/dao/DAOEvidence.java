@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.Query;
 import java.io.Serializable;
 import java.util.List;
 
-public interface DAOEvidence extends MongoRepository<ENTEvidence, Serializable> {
+public interface DAOEvidence extends MongoRepository<ENTEvidence<MDLDisciplina>, Serializable> {
     @Query("{'evidenceTypeId' : ?0,'specificFieldsDes.name': ?1}")
     public ENTEvidence<MDLDisciplina> findByName(String id, String name);
     public List<ENTEvidence<MDLDisciplina>> findByEvidenceTypeId(String evidenceTypeId);

@@ -9,7 +9,7 @@ import static kamban.com.bbva.CyArestapi.utils.UTLConstants.CODE_DOCUMENT_DISCIP
 public class UTLGeneralService<T> {
 
     public ENTEvidence<T> createModelEvidence(T dataEvidence){
-        ENTEvidence dataReturn = new ENTEvidence();
+        ENTEvidence<T> dataReturn = new ENTEvidence<T>();
 
         dataReturn.setEvidenceDate(new Date());
         dataReturn.setEvidenceGroupId("000");

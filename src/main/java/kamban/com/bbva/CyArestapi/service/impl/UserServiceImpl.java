@@ -30,10 +30,10 @@ public class UserServiceImpl implements UserService {
     public String createUser(MDLUser userData) {
         String dataReturn=new String();
 
-        ENTEvidence<MDLDisciplina> dataToSave=this._utlGeneralService.createModelEvidence(userData);
+        ENTEvidence<MDLUser> dataToSave=this._utlGeneralService.createModelEvidence(userData);
         dataToSave.setEvidenceTypeId(CODE_DOCUMENT_USER);
 
-        ENTEvidence<MDLDisciplina> dataSaved=_daoUser.save(dataToSave);
+        ENTEvidence<MDLUser> dataSaved=_daoUser.save(dataToSave);
 
         if(dataSaved!=null){
             dataReturn= dataSaved.getId();
