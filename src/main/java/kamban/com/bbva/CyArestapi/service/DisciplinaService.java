@@ -1,22 +1,16 @@
 package kamban.com.bbva.CyArestapi.service;
 
-import kamban.com.bbva.CyArestapi.utils.GenericServiceRestApi;
-import kamban.com.bbva.CyArestapi.model.Disciplina;
+import kamban.com.bbva.CyArestapi.model.MDLDisciplina;
 
 import java.util.List;
 
 public interface DisciplinaService {
-//public interface DisciplinaService extends GenericServiceRestApi<Disciplina, Long> {
 
-    public List<Disciplina> getDisciplinas();
+    public String createDisciplina(MDLDisciplina disciplinaData);
 
-    public Disciplina getDisciplina(String idDisciplina);
+    public List<MDLDisciplina> retrieveAllDisciplina();
+    public MDLDisciplina retrieveByName(String name);
 
-    public Disciplina getDisciplinaByCod(String codDisciplina);
+    public boolean existDisciplina(String name);
 
-    public Disciplina addDisciplina(Disciplina objdiscDisciplina);
-
-    public Disciplina updateDisciplina(String idDisciplina, Disciplina objDisciplina);
-
-    public void deleteDisciplina(String idDisciplina);
 }
