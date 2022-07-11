@@ -1,14 +1,11 @@
 package kamban.com.bbva.CyArestapi.controller;
 
 import kamban.com.bbva.CyArestapi.model.MDLArea;
-import kamban.com.bbva.CyArestapi.model.MDLError;
-import kamban.com.bbva.CyArestapi.model.MDLUser;
+import kamban.com.bbva.CyArestapi.model.ResponseDataModel;
 import kamban.com.bbva.CyArestapi.service.AreaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,103 +13,88 @@ import java.util.List;
 @RestController
 @RequestMapping("/area/api/v2")
 public class AreaRestController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DisciplinaRestController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DisciplineRestController.class);
 
     @Autowired
     private AreaService _areaService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> createArea(@RequestBody MDLArea areaData){
+    public ResponseDataModel<MDLArea> createArea(@RequestBody MDLArea areaData){
+        ResponseDataModel<MDLArea> dataReturn=new ResponseDataModel<>();
         try{
-            if(areaData!=null && areaData.getCode()!=null){
-                if(_areaService.existArea(areaData.getCode())){
-                    return new ResponseEntity<Object>("Ya existe el area "+areaData.getCode(), HttpStatus.ALREADY_REPORTED);
-                }else{
-                    String idResult= _areaService.createArea(areaData);
-                    if(idResult!=null) {
-                        return new ResponseEntity<Object>(idResult, HttpStatus.CREATED);
-                    }else {
-                        return new ResponseEntity<Object>(new MDLError("No ha sido posible crear el area"), HttpStatus.NOT_MODIFIED);
-                    }
-                }
-            }else {
-                return new ResponseEntity<Object>(new MDLError("No se identifico un area por crear"), HttpStatus.NOT_MODIFIED);
-            }
+            dataReturn =_areaService.createArea(areaData);
 
         }catch (Exception e){
-            return new ResponseEntity<Object>(e, HttpStatus.INTERNAL_SERVER_ERROR);
+            dataReturn.setCode("-1");
+            dataReturn.setMsn("Existe un problema interno en el API AREA-0001");
+
+            LOGGER.error(">>>>> Error en API AREA-0001: ["+e.getMessage()+"]");
         }
+
+        return dataReturn;
     }
 
     @PutMapping("/")
-    public ResponseEntity<Object> updateArea(@RequestBody MDLArea areaData){
-        try{
-            if(areaData!=null && areaData.getCode()!=null){
-                if(_areaService.existArea(areaData.getCode())){
-                    String idResult= _areaService.alterArea(areaData);
-                    if(idResult!=null) {
-                        return ResponseEntity.status(HttpStatus.OK).body(idResult);
-                    }else {
-                        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("No se pudo modificar");
-                    }
-                }else{
-                    return new ResponseEntity<Object>("No existe el area "+areaData.getCode(), HttpStatus.ALREADY_REPORTED);
-                }
-            }else {
-                return new ResponseEntity<Object>("No se han identificado datos a procesar", HttpStatus.ALREADY_REPORTED);
-            }
+    public ResponseDataModel<MDLArea> updateArea(@RequestBody MDLArea areaData){
+        ResponseDataModel<MDLArea> dataReturn =new ResponseDataModel<MDLArea>();
 
+        try{
+            dataReturn =_areaService.alterArea(areaData);
         }catch (Exception e){
-            return new ResponseEntity<Object>(e, HttpStatus.INTERNAL_SERVER_ERROR);
+            dataReturn.setCode("-1");
+            dataReturn.setMsn("Existe un problema interno en el API AREA-0002");
+
+            LOGGER.error(">>>>> Error en API AREA-0002: ["+e.getMessage()+"]");
         }
+
+        return dataReturn;
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<MDLArea>> getAll(){
+    public ResponseDataModel<List<MDLArea>> getAll(){
+        ResponseDataModel<List<MDLArea>> dataReturn=new ResponseDataModel<List<MDLArea>>();
+
         try {
-            List<MDLArea> listArea=_areaService.retrieveAllArea();
-            if(listArea!=null && listArea.size()>0){
-                return new ResponseEntity<List<MDLArea>>(listArea,HttpStatus.OK);
-            }else{
-                return new ResponseEntity<List<MDLArea>>(HttpStatus.NO_CONTENT);
-            }
+            dataReturn=_areaService.retrieveAllArea();
         }catch (Exception e){
-            return new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
+            dataReturn.setCode("-1");
+            dataReturn.setMsn("Existe un problema interno en el API AREA-0003");
+
+            LOGGER.error(">>>>> Error en API AREA-0003: ["+e.getMessage()+"]");
         }
+
+        return dataReturn;
     }
 
-    @GetMapping("/{code}")
-    public ResponseEntity<MDLArea> getByCode(@PathVariable String code){
+    @GetMapping("/{idArea}")
+    public ResponseDataModel<MDLArea> getById(@PathVariable String idArea){//
+        ResponseDataModel<MDLArea> dataReturn =new ResponseDataModel<>();
         try {
-            MDLArea area=_areaService.retrieveAreaByCode(code);
-            if(area!=null){
-                return new ResponseEntity<MDLArea>(area,HttpStatus.OK);
-            }else{
-                return new ResponseEntity<MDLArea>(HttpStatus.NO_CONTENT);
-            }
+            dataReturn=_areaService.retrieveAreaById(idArea);
         }catch (Exception e){
-            return new ResponseEntity<MDLArea>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+            dataReturn.setCode("-1");
+            dataReturn.setMsn("Existe un problema interno en el API AREA-0004");
+
+            LOGGER.error(">>>>> Error en API AREA-0004: ["+e.getMessage()+"]");
         }
+
+        return dataReturn;
     }
 
-    @DeleteMapping("/{id}/{code}")
-    public ResponseEntity<Object> disableArea(@PathVariable String id,@PathVariable String code){
+    @DeleteMapping("/{id}")
+    public ResponseDataModel<MDLArea> disableArea(@PathVariable String id){
+        ResponseDataModel<MDLArea> dataReturn=new ResponseDataModel<>();
         try {
-            MDLArea area=_areaService.retrieveAreaByCode(code);
-            if(area!=null){
-                if(_areaService.disableArea(id)){
-                    return new ResponseEntity<Object>("Area modificada",HttpStatus.OK);
-                }else{
-                    return new ResponseEntity<Object>("No se pudo modificar el area",HttpStatus.NOT_MODIFIED);
-                }
-
-            }else{
-                return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
-            }
-
+            dataReturn=_areaService.disableArea(id);
         }catch (Exception e){
-            return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+            dataReturn.setCode("-1");
+            dataReturn.setMsn("Existe un problema interno en el API AREA-0004");
+
+            LOGGER.error(">>>>> Error en API AREA-0004: ["+e.getMessage()+"]");
         }
+
+        return dataReturn;
     }
 
 }
