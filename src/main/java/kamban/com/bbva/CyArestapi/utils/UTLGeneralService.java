@@ -10,7 +10,7 @@ public class UTLGeneralService<T> {
         ENTEvidence<T> dataReturn = new ENTEvidence<T>();
 
         dataReturn.setEvidenceDate(new Date());
-        dataReturn.setEvidenceGroupId("000");
+        dataReturn.setEvidenceGroupId("C&A-000000");
         dataReturn.setSpecificFieldsDes(dataEvidence);
 
         return dataReturn;
