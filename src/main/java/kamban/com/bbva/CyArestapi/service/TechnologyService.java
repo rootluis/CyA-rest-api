@@ -1,21 +1,22 @@
 package kamban.com.bbva.CyArestapi.service;
 
-import kamban.com.bbva.CyArestapi.model.ResponseDataModel;
 import kamban.com.bbva.CyArestapi.model.TechnologyModel;
 
 import java.util.List;
 
 public interface TechnologyService {
 
-    public ResponseDataModel<List<TechnologyModel>> retrieveAll();
+    public List<TechnologyModel> retrieveAllTechnology(String evidenceTypeId);
 
-    public ResponseDataModel<TechnologyModel> retrieveById(String id);
+    public TechnologyModel retrieveTechnologyById(String id);
 
-    public ResponseDataModel<TechnologyModel> create(TechnologyModel sprintData);
+    public TechnologyModel createTechnology(TechnologyModel objTechnology);
 
-    public ResponseDataModel<TechnologyModel> alter(TechnologyModel sprintData);
+    public TechnologyModel updateTechnology(String id, TechnologyModel sprintData);
 
-    public ResponseDataModel<TechnologyModel> disable(String id);
+    public TechnologyModel disableTechnology(String id);
+
+    public TechnologyModel deleteTechnology(String id);
 
 
 }

@@ -1,204 +1,125 @@
 package kamban.com.bbva.CyArestapi.service.impl;
 
-import kamban.com.bbva.CyArestapi.model.ErrorModel;
-import kamban.com.bbva.CyArestapi.model.ResponseDataModel;
 import kamban.com.bbva.CyArestapi.model.TechnologyModel;
-import kamban.com.bbva.CyArestapi.repository.EvidenceRepository;
 import kamban.com.bbva.CyArestapi.repository.TechnologyRepository;
 import kamban.com.bbva.CyArestapi.repository.entity.ENTEvidence;
 import kamban.com.bbva.CyArestapi.service.TechnologyService;
 import kamban.com.bbva.CyArestapi.utils.UTLConstants;
 import kamban.com.bbva.CyArestapi.utils.UTLGeneralService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TechnologyServiceImpl implements TechnologyService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TechnologyServiceImpl.class);
+
     @Autowired
     private TechnologyRepository technologyRepository;
 
-    private UTLGeneralService<TechnologyModel> _utlGeneralService;
+    private UTLGeneralService<TechnologyModel> utlGeneralService;
 
     public TechnologyServiceImpl() {
-        this._utlGeneralService = new UTLGeneralService<>();
+        this.utlGeneralService = new UTLGeneralService<>();
     }
 
     @Override
-    public ResponseDataModel<List<TechnologyModel>> retrieveAll() {
-        ResponseDataModel<List<TechnologyModel>> dataReturn = new ResponseDataModel<>();
-        dataReturn.setResult(new ArrayList<>());
+    public List<TechnologyModel> retrieveAllTechnology(String evidenceTypeId) {
+        List<TechnologyModel> listResult = new ArrayList<>();
+        List<ENTEvidence<TechnologyModel>>  listForProcess = technologyRepository.findByEvidenceTypeId(evidenceTypeId);
 
-        List<ENTEvidence<TechnologyModel>> listSprint = technologyRepository.findByEvidenceTypeId(UTLConstants.CODE_DOCUMENT_DEPENDENCY_TECHNOLOGY.getValue());
-
-        if (listSprint.isEmpty()) {
-            dataReturn.setCode("1");
-            dataReturn.setMsn("No se han localizado datos");
-        } else {
-            for (ENTEvidence<TechnologyModel> sprintEnt : listSprint) {
-                sprintEnt.getSpecificFieldsDes().setId(sprintEnt.getId());
-                dataReturn.getResult().add(sprintEnt.getSpecificFieldsDes());
-            }
-
-            dataReturn.setCode("0");
+        for (ENTEvidence<TechnologyModel> objEnt: listForProcess) {
+            TechnologyModel obj = objEnt.getSpecificFieldsDes();
+            obj.setId(objEnt.getId());
+            listResult.add(obj);
         }
 
-        return dataReturn;
+        return listResult;
     }
 
     @Override
-    public ResponseDataModel<TechnologyModel> retrieveById(String id) {
-        ResponseDataModel<TechnologyModel> dataReturn = new ResponseDataModel<>();
+    public TechnologyModel retrieveTechnologyById(String id) {
+        ENTEvidence<TechnologyModel> dataForProc = technologyRepository.findById(id).orElseThrow(RuntimeException :: new);
+        TechnologyModel objResult = new TechnologyModel();
+        objResult.setId(dataForProc.getId());
+        objResult.setCode(dataForProc.getSpecificFieldsDes().getCode());
+        objResult.setDescription(dataForProc.getSpecificFieldsDes().getDescription());
+        objResult.setActive(dataForProc.getSpecificFieldsDes().isActive());
+        return objResult;
 
-        Optional<ENTEvidence<TechnologyModel>> sprintEnt = technologyRepository.findById(id);
-        if (sprintEnt.isPresent()) {
-            sprintEnt.get().getSpecificFieldsDes().setId(sprintEnt.get().getId());
-            dataReturn.setResult(sprintEnt.get().getSpecificFieldsDes());
-
-            dataReturn.setCode("0");
-        } else {
-            dataReturn.setCode("1");
-            dataReturn.setMsn("No se encontro el elemento indicado");
-        }
-
-        return dataReturn;
     }
 
     @Override
-    public ResponseDataModel<TechnologyModel> create(TechnologyModel objTechnology) {
-        ResponseDataModel<TechnologyModel> dataReturn = validDataToCreate(objTechnology);
+    public TechnologyModel createTechnology(TechnologyModel objTechnology) {
+        ENTEvidence<TechnologyModel> technologyObj = utlGeneralService.createModelEvidence(objTechnology);
+        technologyObj.setEvidenceTypeId(UTLConstants.CODE_DOCUMENT_DEPENDENCY_TECHNOLOGY.getValue());
+        ENTEvidence<TechnologyModel> dataSaved = technologyRepository.save(technologyObj);
+        dataSaved.getSpecificFieldsDes().setId(dataSaved.getId());
 
-        if (dataReturn.getCode().equals("0")) {
-            objTechnology.setActive(true);
-            ENTEvidence<TechnologyModel> sprintToSave = _utlGeneralService.createModelEvidence(objTechnology);
-            sprintToSave.setEvidenceTypeId(UTLConstants.CODE_DOCUMENT_DEPENDENCY_TECHNOLOGY.getValue());
+        return dataSaved.getSpecificFieldsDes();
 
-            ENTEvidence<TechnologyModel> sprintModelENTEvidence = technologyRepository.save(sprintToSave);
-            sprintModelENTEvidence.getSpecificFieldsDes().setId(sprintModelENTEvidence.getId());
-
-            dataReturn.setResult(sprintModelENTEvidence.getSpecificFieldsDes());
-        }
-
-        return dataReturn;
     }
 
     @Override
-    public ResponseDataModel<TechnologyModel> alter(TechnologyModel sprintData) {
-        ResponseDataModel<TechnologyModel> dataReturn = validDataToAlter(sprintData);
+    public TechnologyModel updateTechnology(String id, TechnologyModel objTechnology) {
+        ENTEvidence<TechnologyModel> objForUpdate =
+                technologyRepository.findById(id).orElseThrow(() -> new RuntimeException("No se encontro la tecnologia"));
 
-        if (dataReturn.getCode().equals("0")) {
-            Optional<ENTEvidence<TechnologyModel>> entToAlter = technologyRepository.findById(sprintData.getId());
+        objForUpdate.setSpecificFieldsDes(objTechnology);
 
-            if (entToAlter.isPresent()) {
-                sprintData.setId(null);
-                entToAlter.get().setSpecificFieldsDes(sprintData);
+        ENTEvidence<TechnologyModel> objResult = technologyRepository.save(objForUpdate);
+        TechnologyModel objTechnologyResult = new TechnologyModel();
+        objTechnologyResult.setId(objResult.getId());
+        objTechnologyResult.setCode(objResult.getSpecificFieldsDes().getCode());
+        objTechnologyResult.setDescription(objResult.getSpecificFieldsDes().getDescription());
+        objTechnologyResult.setActive(objResult.getSpecificFieldsDes().isActive());
 
-                ENTEvidence<TechnologyModel> entToAlterSaved = technologyRepository.save(entToAlter.get());
-                entToAlterSaved.getSpecificFieldsDes().setId(entToAlterSaved.getId());
+        return objTechnologyResult;
 
-                dataReturn.setResult(entToAlterSaved.getSpecificFieldsDes());
-            } else {
-                dataReturn.setCode("1");
-                dataReturn.setMsn("No existe el Sprint indicado");
-            }
-        }
-
-        return dataReturn;
     }
 
     @Override
-    public ResponseDataModel<TechnologyModel> disable(String id) {
-        ResponseDataModel<TechnologyModel> dataReturn = new ResponseDataModel<>();
-
-        if (id == null || id.isEmpty()) {
-            dataReturn.setCode("1");
-            dataReturn.setMsn("Es necesario indicar el id del Sprint a desbilitar");
-        } else {
-            Optional<ENTEvidence<TechnologyModel>> sprintENTEvidence = technologyRepository.findById(id);
-
-            if (sprintENTEvidence.isPresent()) {
-                sprintENTEvidence.get().getSpecificFieldsDes().setActive(false);
-
-                ENTEvidence<TechnologyModel> sprintSaved = technologyRepository.save(sprintENTEvidence.get());
-                sprintSaved.getSpecificFieldsDes().setId(sprintSaved.getId());
-
-                dataReturn.setResult(sprintSaved.getSpecificFieldsDes());
-                dataReturn.setCode("0");
-            } else {
-                dataReturn.setCode("1");
-                dataReturn.setMsn("No existe el Sprint indicada");
-            }
+    public TechnologyModel disableTechnology(String id) {
+        ENTEvidence<TechnologyModel> objFine =
+                technologyRepository.findById(id).orElseThrow(() -> new RuntimeException("No se encontro la tecnologia"));
+        TechnologyModel objForUpdate = objFine.getSpecificFieldsDes();
+        if (objForUpdate.isActive()){
+            LOGGER.info("Tecnologia a Desactivar: " + objForUpdate.getDescription());
+            objForUpdate.setActive(false);
+        }else{
+            LOGGER.info("Tecnologia a Activar: " + objForUpdate.getDescription());
         }
 
-        return dataReturn;
+        objFine.setSpecificFieldsDes(objForUpdate);
+
+        ENTEvidence<TechnologyModel> objResult = technologyRepository.save(objFine);
+        TechnologyModel objTechnologyResult = new TechnologyModel();
+        objTechnologyResult.setId(objResult.getId());
+        objTechnologyResult.setCode(objResult.getSpecificFieldsDes().getCode());
+        objTechnologyResult.setDescription(objResult.getSpecificFieldsDes().getDescription());
+        objTechnologyResult.setActive(objResult.getSpecificFieldsDes().isActive());
+
+        return objTechnologyResult;
+
     }
 
+    @Override
+    public TechnologyModel deleteTechnology(String id) {
+        ENTEvidence<TechnologyModel> objFine =
+                technologyRepository.findById(id).orElseThrow(() -> new RuntimeException("No se encontro la tecnologia"));
 
-    private ResponseDataModel<TechnologyModel> validDataToCreate(TechnologyModel objTechnology) {
-        ResponseDataModel<TechnologyModel> dataReturn = new ResponseDataModel<>();
-
-        if (objTechnology != null) {
-            List<ErrorModel> errors = new ArrayList<>();
-
-            if (objTechnology.getCode().isEmpty()) {
-                ErrorModel errorName = new ErrorModel();
-                errorName.setMessage("Es necesario indicar el nombre del Sprint");
-
-                errors.add(errorName);
-            }
-
-            if (errors.size() > 0) {
-                dataReturn.setCode("2");
-                dataReturn.setMsn("Favor de validar los siguientes comentarios:");
-                dataReturn.setErrors(errors);
-            } else {
-                dataReturn.setCode("0");
-            }
-
-        } else {
-            dataReturn.setCode("1");
-            dataReturn.setMsn("No se encontraron datos a procesar");
-        }
-
-        return dataReturn;
+        technologyRepository.delete(objFine);
+        ENTEvidence<TechnologyModel> objResult = technologyRepository.save(objFine);
+        TechnologyModel objTechnologyResult = new TechnologyModel();
+        objTechnologyResult.setId(objResult.getId());
+        objTechnologyResult.setCode(objResult.getSpecificFieldsDes().getCode());
+        objTechnologyResult.setDescription(objResult.getSpecificFieldsDes().getDescription());
+        objTechnologyResult.setActive(objResult.getSpecificFieldsDes().isActive());
+        return objTechnologyResult;
     }
-
-    private ResponseDataModel<TechnologyModel> validDataToAlter(TechnologyModel objTechnology) {
-        ResponseDataModel<TechnologyModel> dataReturn = new ResponseDataModel<>();
-
-        if (objTechnology != null) {
-            if (objTechnology.getId().isEmpty()) {
-                dataReturn.setCode("1");
-                dataReturn.setMsn("El indicador del Sprint es incorrecto");
-            } else {
-                List<ErrorModel> errors = new ArrayList<>();
-
-                if (objTechnology.getCode().isEmpty()) {
-                    ErrorModel errorName = new ErrorModel();
-                    errorName.setMessage("Es necesario indicar el nombre del Sprint");
-
-                    errors.add(errorName);
-                }
-
-                if (errors.size() > 0) {
-                    dataReturn.setCode("2");
-                    dataReturn.setMsn("Favor de validar los siguientes comentarios:");
-                    dataReturn.setErrors(errors);
-                } else {
-                    dataReturn.setCode("0");
-                }
-            }
-
-        } else {
-            dataReturn.setCode("1");
-            dataReturn.setMsn("No se encontraron datos a procesar");
-        }
-
-        return dataReturn;
-    }
-
 }

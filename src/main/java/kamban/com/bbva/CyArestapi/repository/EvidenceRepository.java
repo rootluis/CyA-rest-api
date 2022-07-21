@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface EvidenceRepository<T> extends MongoRepository<ENTEvidence<T>, Serializable> {
     public List<ENTEvidence<T>> findByEvidenceTypeId(String evidenceTypeId);
+
 }
